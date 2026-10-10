@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Projeto – APIs e DOM</title>
+  <style>
+    :root {
+      --bg: #f3f4f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --erro-bg: #fee2e2;
+      --erro-text: #b91c1c;
+      --vazio-bg: #f3f4f6;
+      --vazio-text: #4b5563;
+      --load-bg: #fef3c7;
+      --load-text: #92400e;
+      --chip: #e0e7ff;
+      --chip-text: #3730a3;
+      --shadow: 0 4px 14px rgba(0, 0, 0, .08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #334155;
+        --primary: #818cf8;
+        --primary-hover: #a5b4fc;
+        --erro-bg: #450a0a;
+        --erro-text: #fca5a5;
+        --vazio-bg: #273449;
+        --vazio-text: #cbd5e1;
+        --load-bg: #422006;
+        --load-text: #fcd34d;
+        --chip: #312e81;
+        --chip-text: #c7d2fe;
+        --shadow: 0 4px 14px rgba(0, 0, 0, .4);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+      line-height: 1.55;
+    }
+
+    h1 { text-align: center; font-size: 1.9rem; margin: 0 0 1.5rem; }
+    h2 { margin: 0 0 1rem; font-size: 1.25rem; }
+    h3 { margin: 1.25rem 0 .5rem; font-size: 1.05rem; }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    form { display: flex; gap: .6rem; margin-bottom: .9rem; }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: .7rem .9rem;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+    }
+
+    button {
+      padding: .7rem 1.3rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--primary);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s, transform .05s;
+    }
+    button:hover:not(:disabled) { background: var(--primary-hover); }
+    button:active:not(:disabled) { transform: scale(.97); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* Mensagens de status (os 4 estados) */
+    .status { margin: 0; border-radius: 10px; font-weight: 600; }
+    .status:not(:empty) { padding: .6rem .9rem; margin-bottom: .75rem; }
+    .status.carregando { background: var(--load-bg); color: var(--load-text); }
+    .status.erro { background: var(--erro-bg); color: var(--erro-text); }
+    .status.vazio { background: var(--vazio-bg); color: var(--vazio-text); }
+
+    .status.carregando::before {
+      content: "";
+      display: inline-block;
+      width: .95em;
+      height: .95em;
+      margin-right: .55em;
+      vertical-align: -.12em;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: girar .7s linear infinite;
+    }
+    @keyframes girar { to { transform: rotate(360deg); } }
+
+    /* Resultado do CEP */
+    dl { margin: 0; }
+    dt {
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      margin-top: .75rem;
+    }
+    dd { margin: 0; font-size: 1.05rem; }
+
+    ul { padding-left: 1.2rem; margin: .4rem 0; }
+    li { margin: .25rem 0; }
+
+    /* Pokédex */
+    #resultado-pokemon { text-align: center; }
+    #resultado-pokemon h3 { font-size: 1.4rem; margin-bottom: 0; }
+    img.sprite {
+      width: 160px;
+      height: 160px;
+      image-rendering: pixelated;
+      background: var(--bg);
+      border-radius: 50%;
+      margin: .5rem 0;
+    }
+    .tipo {
+      display: inline-block;
+      background: var(--chip);
+      color: var(--chip-text);
+      border-radius: 999px;
+      padding: .2rem .85rem;
+      margin: 0 .2rem;
+      font-size: .9rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    /* Telas pequenas */
+    @media (max-width: 480px) {
+      body { padding: 1rem .75rem 2rem; }
+      section { padding: 1rem; }
+      form { flex-direction: column; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Mini Projeto: APIs e DOM</h1>
+
+  <!-- PARTE 1 -->
+  <section id="parte1">
+    <h2>Parte 1 – Pedidos</h2>
+    <p>Pedidos válidos e pagos:</p>
+    <ul id="lista-pedidos"></ul>
+    <p><strong id="total-faturado"></strong></p>
+  </section>
+
+  <!-- PARTE 2 -->
+  <section id="parte2">
+    <h2>Parte 2 – Buscador de CEP</h2>
+    <form id="form-cep">
+      <input id="input-cep" type="text" placeholder="Digite o CEP (8 dígitos)" inputmode="numeric" autocomplete="off" />
+      <button id="btn-cep" type="submit">Buscar</button>
+    </form>
+    <p id="status-cep" class="status" role="status" aria-live="polite"></p>
+    <dl id="resultado-cep"></dl>
+    <h3>Histórico</h3>
+    <ul id="historico-cep"></ul>
+  </section>
+
+  <!-- PARTE 3 -->
+  <section id="parte3">
+    <h2>Parte 3 – Mini Pokédex</h2>
+    <form id="form-pokemon">
+      <input id="input-pokemon" type="text" placeholder="Nome do Pokémon (ex: pikachu)" autocomplete="off" />
+      <button id="btn-pokemon" type="submit">Buscar</button>
+    </form>
+    <p id="status-pokemon" class="status" role="status" aria-live="polite"></p>
+    <div id="resultado-pokemon"></div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
